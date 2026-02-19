@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, PawPrint, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Menu, PawPrint, LogOut, MessageSquare } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Početna" },
   { to: "/pretraga", label: "Pretraga" },
+  { to: "/blog", label: "Blog" },
   { to: "/donacije", label: "Donacije" },
   { to: "/o-nama", label: "O nama" },
 ];
@@ -16,6 +20,45 @@ export const Navbar = () => {
   const { user, role, signOut } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ["unread-count", user?.id],
+    queryFn: async () => {
+      // Get user's conversations
+      const { data: convs } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(`adopter_id.eq.${user!.id},shelter_id.eq.${user!.id}`);
+      if (!convs || convs.length === 0) return 0;
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .in("conversation_id", convs.map((c) => c.id))
+        .eq("is_read", false)
+        .neq("sender_id", user!.id);
+      return count || 0;
+    },
+    enabled: !!user,
+    refetchInterval: 15000,
+  });
+
+  const MessagesLink = ({ mobile }: { mobile?: boolean }) => (
+    <Link to="/poruke" onClick={mobile ? () => setOpen(false) : undefined}>
+      <Button
+        variant={location.pathname === "/poruke" ? "default" : "ghost"}
+        size={mobile ? "default" : "sm"}
+        className={mobile ? "w-full justify-start gap-2" : "gap-1"}
+      >
+        <MessageSquare className="h-4 w-4" />
+        Poruke
+        {!!unreadCount && unreadCount > 0 && (
+          <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-xs">
+            {unreadCount}
+          </Badge>
+        )}
+      </Button>
+    </Link>
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
@@ -51,6 +94,14 @@ export const Navbar = () => {
               </Button>
             </Link>
           )}
+          {role === "admin" && (
+            <Link to="/blog/admin">
+              <Button variant={location.pathname === "/blog/admin" ? "default" : "ghost"} size="sm">
+                Blog Admin
+              </Button>
+            </Link>
+          )}
+          {user && <MessagesLink />}
           {user ? (
             <Button variant="outline" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 mr-1" /> Odjavi se
@@ -88,6 +139,12 @@ export const Navbar = () => {
                   <Button variant="ghost" className="w-full justify-start">Omiljeni</Button>
                 </Link>
               )}
+              {role === "admin" && (
+                <Link to="/blog/admin" onClick={() => setOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">Blog Admin</Button>
+                </Link>
+              )}
+              {user && <MessagesLink mobile />}
               {user ? (
                 <Button variant="outline" onClick={() => { signOut(); setOpen(false); }}>
                   <LogOut className="h-4 w-4 mr-1" /> Odjavi se
