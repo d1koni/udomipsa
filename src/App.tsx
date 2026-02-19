@@ -12,6 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import DonationsPage from "./pages/DonationsPage";
 import AboutPage from "./pages/AboutPage";
 import AuthPage from "./pages/AuthPage";
+import FavoritesPage from "./pages/FavoritesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/donacije" element={<DonationsPage />} />
               <Route path="/o-nama" element={<AboutPage />} />
+              <Route path="/omiljeni" element={<FavoritesPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
