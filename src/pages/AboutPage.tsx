@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const team = [
   { name: "Dimitrije Stanojević", role: "Osnivač & Developer" },
-  { name: "Uroš Dragutinović", role: "Suosnivač & Designer" },
+  { name: "Uroš Dragutinović", role: "Osnivač & Designer" },
 ];
 
 const AboutPage = () => (

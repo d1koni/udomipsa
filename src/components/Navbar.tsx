@@ -40,7 +40,14 @@ export const Navbar = () => {
           {role === "shelter" && (
             <Link to="/dashboard">
               <Button variant={location.pathname === "/dashboard" ? "default" : "ghost"} size="sm">
-                Panel
+                Moji psi
+              </Button>
+            </Link>
+          )}
+          {role === "adopter" && (
+            <Link to="/omiljeni">
+              <Button variant={location.pathname === "/omiljeni" ? "default" : "ghost"} size="sm">
+                Omiljeni
               </Button>
             </Link>
           )}
@@ -73,7 +80,12 @@ export const Navbar = () => {
               ))}
               {role === "shelter" && (
                 <Link to="/dashboard" onClick={() => setOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">Panel</Button>
+                  <Button variant="ghost" className="w-full justify-start">Moji psi</Button>
+                </Link>
+              )}
+              {role === "adopter" && (
+                <Link to="/omiljeni" onClick={() => setOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">Omiljeni</Button>
                 </Link>
               )}
               {user ? (

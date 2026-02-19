@@ -1,14 +1,19 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Phone, Mail, Heart, Syringe, Scissors } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Heart, Syringe, Scissors } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const DogDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { user, role } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState(0);
 
   const { data: dog, isLoading } = useQuery({
@@ -29,6 +34,35 @@ const DogDetailPage = () => {
       return data;
     },
     enabled: !!dog?.shelter_id,
+  });
+
+  const { data: isFavorited } = useQuery({
+    queryKey: ["favorite", user?.id, id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("dog_id", id!)
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user && role === "adopter" && !!id,
+  });
+
+  const toggleFavorite = useMutation({
+    mutationFn: async () => {
+      if (isFavorited) {
+        await supabase.from("favorites").delete().eq("user_id", user!.id).eq("dog_id", id!);
+      } else {
+        await supabase.from("favorites").insert({ user_id: user!.id, dog_id: id! });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorite", user?.id, id] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      toast({ title: isFavorited ? "Uklonjeno iz omiljenih" : "Dodato u omiljene!" });
+    },
   });
 
   if (isLoading) {
@@ -85,9 +119,21 @@ const DogDetailPage = () => {
 
         {/* Details */}
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">{dog.name}</h1>
-            <p className="text-lg text-muted-foreground">{dog.breed}</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">{dog.name}</h1>
+              <p className="text-lg text-muted-foreground">{dog.breed}</p>
+            </div>
+            {user && role === "adopter" && (
+              <Button
+                variant={isFavorited ? "default" : "outline"}
+                size="icon"
+                onClick={() => toggleFavorite.mutate()}
+                disabled={toggleFavorite.isPending}
+              >
+                <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
+              </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
