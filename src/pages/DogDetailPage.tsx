@@ -5,8 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Phone, Heart, Syringe, Scissors } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Heart, Syringe, Scissors, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const DogDetailPage = () => {
@@ -14,6 +15,7 @@ const DogDetailPage = () => {
   const { user, role } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
 
   const { data: dog, isLoading } = useQuery({
@@ -195,11 +197,44 @@ const DogDetailPage = () => {
                   )}
                 </div>
               )}
-              <a href={shelter?.phone ? `tel:${shelter.phone}` : "#"}>
-                <Button className="w-full gap-2">
-                  <Phone className="h-4 w-4" /> Kontaktiraj azil
+              {shelter?.phone && (
+                <a href={`tel:${shelter.phone}`}>
+                  <Button variant="outline" className="w-full gap-2">
+                    <Phone className="h-4 w-4" /> Pozovi azil
+                  </Button>
+                </a>
+              )}
+              {user && role === "adopter" && (
+                <Button
+                  className="w-full gap-2"
+                  onClick={async () => {
+                    // Create or find existing conversation
+                    const { data: existing } = await supabase
+                      .from("conversations")
+                      .select("id")
+                      .eq("adopter_id", user.id)
+                      .eq("shelter_id", dog.shelter_id)
+                      .eq("dog_id", dog.id)
+                      .maybeSingle();
+                    if (existing) {
+                      navigate("/poruke");
+                      return;
+                    }
+                    const { error } = await supabase.from("conversations").insert({
+                      adopter_id: user.id,
+                      shelter_id: dog.shelter_id,
+                      dog_id: dog.id,
+                    });
+                    if (error) {
+                      toast({ title: "Greška", description: error.message, variant: "destructive" });
+                      return;
+                    }
+                    navigate("/poruke");
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4" /> Pošalji poruku azilu
                 </Button>
-              </a>
+              )}
             </CardContent>
           </Card>
         </div>
