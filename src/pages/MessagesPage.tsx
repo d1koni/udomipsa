@@ -11,8 +11,6 @@ const MessagesPage = () => {
   const { user, loading } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (!loading && !user) return <Navigate to="/auth" replace />;
-
   const { data: conversations } = useQuery({
     queryKey: ["conversations", user?.id],
     queryFn: async () => {
@@ -55,6 +53,8 @@ const MessagesPage = () => {
 
   const getName = (id: string) => profiles?.find((p) => p.id === id)?.full_name || "Korisnik";
   const getDogName = (id: string | null) => id ? dogs?.find((d) => d.id === id)?.name : null;
+
+  if (!loading && !user) return <Navigate to="/auth" replace />;
 
   return (
     <div className="container py-8">
