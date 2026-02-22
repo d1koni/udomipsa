@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
-import { sr } from "date-fns/locale";
+import { srLatn } from "date-fns/locale";
 
 const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +48,7 @@ const BlogPostPage = () => {
       )}
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">
-          {format(new Date(post.created_at), "d. MMMM yyyy.", { locale: sr })}
+          {format(new Date(post.created_at), "d. MMMM yyyy.", { locale: srLatn })}
         </p>
         <h1 className="text-3xl font-bold">{post.title}</h1>
       </div>
