@@ -34,10 +34,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserData = async (userId: string) => {
     const [{ data: roleData }, { data: profileData }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId).single(),
+      supabase.from("user_roles").select("role").eq("user_id", userId),
       supabase.from("profiles").select("*").eq("id", userId).single(),
     ]);
-    if (roleData) setRole(roleData.role);
+    if (roleData && roleData.length > 0) {
+      // Prioritize admin > shelter > adopter
+      const roles = roleData.map(r => r.role);
+      if (roles.includes("admin")) setRole("admin");
+      else if (roles.includes("shelter")) setRole("shelter");
+      else setRole(roles[0]);
+    }
     if (profileData) setProfile(profileData);
   };
 
