@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit2, Plus } from "lucide-react";
 import { Navigate } from "react-router-dom";
+import { format } from "date-fns";
+import { srLatn } from "date-fns/locale";
 
 const BlogAdminPage = () => {
   const { user, role } = useAuth();
@@ -112,7 +114,7 @@ const BlogAdminPage = () => {
               <div>
                 <p className="font-medium">{post.title}</p>
                 <p className="text-sm text-muted-foreground">
-                  {new Date(post.created_at).toLocaleDateString("sr")}
+                  {format(new Date(post.created_at), "d. MMMM yyyy.", { locale: srLatn })}
                 </p>
               </div>
               <div className="flex gap-2">
