@@ -9,6 +9,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   role: AppRole | null;
+  roles: AppRole[];
   profile: Database["public"]["Tables"]["profiles"]["Row"] | null;
   loading: boolean;
   signOut: () => Promise<void>;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   role: null,
+  roles: [],
   profile: null,
   loading: true,
   signOut: async () => {},
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
+  const [allRoles, setAllRoles] = useState<AppRole[]>([]);
   const [profile, setProfile] = useState<Database["public"]["Tables"]["profiles"]["Row"] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,8 +41,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       supabase.from("profiles").select("*").eq("id", userId).single(),
     ]);
     if (roleData && roleData.length > 0) {
-      // Prioritize admin > shelter > adopter
       const roles = roleData.map(r => r.role);
+      setAllRoles(roles);
       if (roles.includes("admin")) setRole("admin");
       else if (roles.includes("shelter")) setRole("shelter");
       else setRole(roles[0]);
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => fetchUserData(session.user.id), 0);
         } else {
           setRole(null);
+          setAllRoles([]);
           setProfile(null);
         }
         setLoading(false);
@@ -77,11 +81,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     await supabase.auth.signOut();
     setRole(null);
+    setAllRoles([]);
     setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, role, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user, role, roles: allRoles, profile, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

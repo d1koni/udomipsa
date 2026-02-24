@@ -17,7 +17,7 @@ const navItems = [
 ];
 
 export const Navbar = () => {
-  const { user, role, signOut } = useAuth();
+  const { user, role, roles, signOut } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -80,14 +80,14 @@ export const Navbar = () => {
               </Button>
             </Link>
           ))}
-          {role === "shelter" && (
+          {roles.includes("shelter") && (
             <Link to="/dashboard">
               <Button variant={location.pathname === "/dashboard" ? "default" : "ghost"} size="sm">
                 Moji psi
               </Button>
             </Link>
           )}
-          {role === "adopter" && (
+          {(roles.includes("adopter") || role === "admin") && (
             <Link to="/omiljeni">
               <Button variant={location.pathname === "/omiljeni" ? "default" : "ghost"} size="sm">
                 Omiljeni
@@ -129,12 +129,12 @@ export const Navbar = () => {
                   </Button>
                 </Link>
               ))}
-              {role === "shelter" && (
+              {roles.includes("shelter") && (
                 <Link to="/dashboard" onClick={() => setOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start">Moji psi</Button>
                 </Link>
               )}
-              {role === "adopter" && (
+              {(roles.includes("adopter") || role === "admin") && (
                 <Link to="/omiljeni" onClick={() => setOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start">Omiljeni</Button>
                 </Link>
