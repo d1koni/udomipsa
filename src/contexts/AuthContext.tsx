@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRole(null);
     setAllRoles([]);
     setProfile(null);
+    window.location.href = "/";
   };
 
   return (
