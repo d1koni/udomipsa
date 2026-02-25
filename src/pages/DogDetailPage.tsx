@@ -17,6 +17,7 @@ const DogDetailPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const { data: dog, isLoading } = useQuery({
     queryKey: ["dog", id],
@@ -204,11 +205,10 @@ const DogDetailPage = () => {
                   </Button>
                 </a>
               )}
-              {user && role === "adopter" && (
+              {user && role === "adopter" ? (
                 <Button
                   className="w-full gap-2"
                   onClick={async () => {
-                    // Create or find existing conversation
                     const { data: existing } = await supabase
                       .from("conversations")
                       .select("id")
@@ -234,6 +234,22 @@ const DogDetailPage = () => {
                 >
                   <MessageSquare className="h-4 w-4" /> Pošalji poruku azilu
                 </Button>
+              ) : !user && (
+                <>
+                  <Button
+                    className="w-full gap-2"
+                    variant="outline"
+                    onClick={() => setShowLoginPrompt(true)}
+                  >
+                    <MessageSquare className="h-4 w-4" /> Pošalji poruku azilu
+                  </Button>
+                  {showLoginPrompt && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Morate biti prijavljeni da biste poslali poruku.{" "}
+                      <Link to="/auth" className="text-primary underline font-medium">Prijavi se</Link>
+                    </p>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
