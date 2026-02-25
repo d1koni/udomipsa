@@ -8,6 +8,7 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import SearchPage from "./pages/SearchPage";
 import DogDetailPage from "./pages/DogDetailPage";
+import ShelterProfilePage from "./pages/ShelterProfilePage";
 import DashboardPage from "./pages/DashboardPage";
 import DonationsPage from "./pages/DonationsPage";
 import AboutPage from "./pages/AboutPage";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/pretraga" element={<SearchPage />} />
               <Route path="/pas/:id" element={<DogDetailPage />} />
+              <Route path="/azil/:id" element={<ShelterProfilePage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/donacije" element={<DonationsPage />} />
               <Route path="/o-nama" element={<AboutPage />} />
