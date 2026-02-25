@@ -185,7 +185,11 @@ const DogDetailPage = () => {
               </h3>
               {shelter && (
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  {shelter.full_name && <p className="font-medium text-foreground">{shelter.full_name}</p>}
+                  {shelter.full_name && (
+                    <Link to={`/azil/${shelter.id}`} className="font-medium text-foreground hover:text-primary transition-colors underline-offset-2 hover:underline">
+                      {shelter.full_name}
+                    </Link>
+                  )}
                   {shelter.phone && (
                     <p className="flex items-center gap-1">
                       <Phone className="h-3 w-3" /> {shelter.phone}
