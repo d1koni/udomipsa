@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Menu, PawPrint, LogOut, MessageSquare } from "lucide-react";
+import { Menu, PawPrint, LogOut, MessageSquare, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 const navItems = [
   { to: "/", label: "Početna" },
@@ -18,6 +19,7 @@ const navItems = [
 
 export const Navbar = () => {
   const { user, role, roles, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -102,6 +104,9 @@ export const Navbar = () => {
             </Link>
           )}
           {user && <MessagesLink />}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-9 w-9">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           {user ? (
             <Button variant="outline" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 mr-1" /> Odjavi se
@@ -145,6 +150,10 @@ export const Navbar = () => {
                 </Link>
               )}
               {user && <MessagesLink mobile />}
+              <Button variant="ghost" className="w-full justify-start gap-2" onClick={toggleTheme}>
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === "dark" ? "Svetla tema" : "Tamna tema"}
+              </Button>
               {user ? (
                 <Button variant="outline" onClick={() => { signOut(); setOpen(false); }}>
                   <LogOut className="h-4 w-4 mr-1" /> Odjavi se
